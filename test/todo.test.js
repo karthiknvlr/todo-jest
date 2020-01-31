@@ -1,24 +1,14 @@
 const mongoose = require('mongoose');
+const { setupDB } = require('./setup');
+
+setupDB('todo-list');
+const app = require('../index');
+const supertest = require('supertest');
+const request = supertest(app);
+
 describe('Todo List', () => {
 	let todoId;
-	beforeAll(async done => {
-		const url = `mongodb://127.0.0.1/todo-test`;
-		await mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
-		done();
-	});
 
-	afterAll(async done => {
-		await mongoose.connection.close();
-		done();
-	});
-
-	process.env.NODE_ENV = 'test';
-	process.env.HOST = '127.0.0.1';
-	process.env.PORT = '3000';
-
-	const app = require('../index');
-	const supertest = require('supertest');
-	const request = supertest(app);
 	test(`should response the GET '/'`, async done => {
 		try {
 			let res = await request.get('/');
@@ -70,7 +60,6 @@ describe('Todo List', () => {
 	test('should delete todo list', async done => {
 		try {
 			let result = await request.delete(`/todo/${todoId}`);
-			console.log(result.body);
 			expect(result.statusCode).toBe(202);
 			expect(result.body).toBeTruthy();
 			done();
